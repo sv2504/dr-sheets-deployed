@@ -31,7 +31,7 @@ export const Testimonials: React.FC = () => {
         {testimonials.map((testimonial, index) => (
           <div key={index} className="bg-white p-6 rounded-2xl shadow-lg border border-slate-200 flex flex-col">
             <div className="flex-grow">
-              <p className="text-slate-700 italic leading-relaxed">"{testimonial.text}"</p>
+              <p className="text-slate-700 italic leading-relaxed">&quot;{testimonial.text}&quot;</p>
             </div>
             <div className="mt-4 pt-4 border-t border-slate-200">
               <p className="font-bold text-slate-800">{testimonial.name}</p>
