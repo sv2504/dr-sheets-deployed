@@ -15,7 +15,7 @@ const ratelimit = new Ratelimit({
 });
 
 export async function POST(request: NextRequest) {
-  // 1. Get the user's IP address (The definitive Vercel way)
+  // 1. Get the user's IP address
   const ip = request.headers.get('x-forwarded-for') ?? '127.0.0.1';
 
   // 2. Check the rate limit
@@ -52,19 +52,20 @@ export async function POST(request: NextRequest) {
   `;
 
   try {
-    // THIS IS THE CORRECTED LINE:
-    const genAI = new GoogleGenAI({ apiKey });
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // THIS ENTIRE BLOCK IS NOW CORRECTED TO USE THE MODERN API
+    const ai = new GoogleGenAI({ apiKey });
 
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
-      systemInstruction: {
-        role: "model",
-        parts: [{ text: DR_SHEETS_PROMPT }],
-      },
+    const response = await ai.models.generateContent({
+        model: 'gemini-1.5-flash',
+        contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
+        systemInstruction: {
+          role: "model",
+          parts: [{ text: DR_SHEETS_PROMPT }],
+        },
     });
 
-    const responseText = result.response.text();
+    // The way to get the text response is also different in the new API
+    const responseText = response.text;
 
     return NextResponse.json(
         { text: responseText },
