@@ -42,11 +42,15 @@ export async function POST(request: NextRequest) {
   if (!apiKey) {
     return NextResponse.json({ error: "API key not configured" }, { status: 500 });
   }
+  
+  // THE CORRECTED LOGIC: Combine the system prompt and user prompt into one.
+  const combinedPrompt = `${DR_SHEETS_PROMPT}
 
-  const fullPrompt = `
     Here is the user's request:
+
     **Goal/Problem:**
     ${userRequest}
+
     **Existing (broken) Formula (if any):**
     ${brokenFormula || 'None provided.'}
   `;
@@ -54,14 +58,10 @@ export async function POST(request: NextRequest) {
   try {
     const ai = new GoogleGenAI({ apiKey });
 
+    // THE CORRECTED API CALL: We no longer pass a separate system_instruction.
     const response = await ai.models.generateContent({
         model: 'gemini-1.5-flash',
-        contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
-        // THE FINAL CORRECTION: system_instruction with an underscore
-        system_instruction: {
-          role: "model",
-          parts: [{ text: DR_SHEEHTS_PROMPT }],
-        },
+        contents: [{ role: "user", parts: [{ text: combinedPrompt }] }],
     });
 
     const responseText = response.text;
