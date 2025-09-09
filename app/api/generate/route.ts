@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // If rate limit is not exceeded, proceed with the original logic
+  // If rate limit is not exceeded, proceed
   const { userRequest, brokenFormula } = await request.json();
   const apiKey = process.env.GEMINI_API_KEY;
 
@@ -52,19 +52,18 @@ export async function POST(request: NextRequest) {
   `;
 
   try {
-    // THIS ENTIRE BLOCK IS NOW CORRECTED TO USE THE MODERN API
     const ai = new GoogleGenAI({ apiKey });
 
     const response = await ai.models.generateContent({
         model: 'gemini-1.5-flash',
         contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
-        systemInstruction: {
+        // THE FINAL CORRECTION: system_instruction with an underscore
+        system_instruction: {
           role: "model",
-          parts: [{ text: DR_SHEETS_PROMPT }],
+          parts: [{ text: DR_SHEEHTS_PROMPT }],
         },
     });
 
-    // The way to get the text response is also different in the new API
     const responseText = response.text;
 
     return NextResponse.json(
