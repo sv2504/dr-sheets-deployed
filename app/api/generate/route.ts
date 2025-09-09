@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/genai"; // CORRECTED! No typo here.
+import { GoogleGenAI } from "@google/genai";
 import { DR_SHEETS_PROMPT } from '../../../constants';
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
   `;
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
+    const genAI = new GoogleGenAI(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const result = await model.generateContent({

@@ -1,13 +1,13 @@
 "use client";
 import React, { useState, useCallback } from 'react';
-import { Header } from './components/Header';
-import { FormulaInput } from './components/FormulaInput';
-import { SolutionDisplay } from './components/SolutionDisplay';
-import { LoadingSpinner } from './components/LoadingSpinner';
-import { getFormulaSolution } from './services/geminiService';
-import { Solution } from './types';
-import { Testimonials } from './components/Testimonials';
-import { ShareButtons } from './components/ShareButtons';
+import { Header } from '../components/Header';
+import { FormulaInput } from '../components/FormulaInput';
+import { SolutionDisplay } from '../components/SolutionDisplay';
+import { LoadingSpinner } from '../components/LoadingSpinner';
+import { getFormulaSolution } from '../services/geminiService';
+import { Solution } from '../types';
+import { Testimonials } from '../components/Testimonials';
+import { ShareButtons } from '../components/ShareButtons';
 
 export default function Home() {
   const [solution, setSolution] = useState<Solution | null>(null);
