@@ -15,8 +15,8 @@ const ratelimit = new Ratelimit({
 });
 
 export async function POST(request: NextRequest) {
-  // 1. Get the user's IP address (Vercel-compatible way)
-  const ip = request.ip ?? '127.0.0.1';
+  // 1. Get the user's IP address (The definitive Vercel way)
+  const ip = request.headers.get('x-forwarded-for') ?? '127.0.0.1';
 
   // 2. Check the rate limit
   const { success, limit, remaining, reset } = await ratelimit.limit(ip);
