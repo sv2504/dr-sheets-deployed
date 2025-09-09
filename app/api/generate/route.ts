@@ -1,8 +1,10 @@
+// Use this full block to replace the content of app/api/generate/route.ts
+
 import { GoogleGenAI } from "@google/genai";
 import { DR_SHEETS_PROMPT } from '../../../constants';
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
-import { headers } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
 
 // Initialize Upstash Redis and the rate limiter
 const redis = Redis.fromEnv();
@@ -12,22 +14,25 @@ const ratelimit = new Ratelimit({
   analytics: true,
 });
 
-export async function POST(request: Request) {
-  // 1. Get the user's IP address
-  const ip = headers().get('x-forwarded-for') ?? '127.0.0.1';
+export async function POST(request: NextRequest) {
+  // 1. Get the user's IP address (Vercel-compatible way)
+  const ip = request.ip ?? '127.0.0.1';
 
   // 2. Check the rate limit
   const { success, limit, remaining, reset } = await ratelimit.limit(ip);
 
   if (!success) {
-    return new Response(JSON.stringify({ error: "You have reached your daily limit. Please try again tomorrow." }), {
-      status: 429, // "Too Many Requests"
-      headers: {
-        'X-RateLimit-Limit': limit.toString(),
-        'X-RateLimit-Remaining': remaining.toString(),
-        'X-RateLimit-Reset': reset.toString(),
-      },
-    });
+    return NextResponse.json(
+      { error: "You have reached your daily limit. Please try again tomorrow." },
+      {
+        status: 429,
+        headers: {
+          'X-RateLimit-Limit': limit.toString(),
+          'X-RateLimit-Remaining': remaining.toString(),
+          'X-RateLimit-Reset': reset.toString(),
+        },
+      }
+    );
   }
 
   // If rate limit is not exceeded, proceed with the original logic
@@ -35,7 +40,7 @@ export async function POST(request: Request) {
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    return new Response(JSON.stringify({ error: "API key not configured" }), { status: 500 });
+    return NextResponse.json({ error: "API key not configured" }, { status: 500 });
   }
 
   const fullPrompt = `
@@ -60,17 +65,20 @@ export async function POST(request: Request) {
 
     const responseText = result.response.text();
 
-    return new Response(JSON.stringify({ text: responseText }), {
-      status: 200,
-      headers: {
-        'X-RateLimit-Limit': limit.toString(),
-        'X-RateLimit-Remaining': remaining.toString(),
-        'X-RateLimit-Reset': reset.toString(),
-      },
-    });
+    return NextResponse.json(
+        { text: responseText },
+        {
+          status: 200,
+          headers: {
+            'X-RateLimit-Limit': limit.toString(),
+            'X-RateLimit-Remaining': remaining.toString(),
+            'X-RateLimit-Reset': reset.toString(),
+          },
+        }
+    );
 
   } catch (error) {
     console.error("Error calling Gemini API:", error);
-    return new Response(JSON.stringify({ error: "Failed to get a solution from the AI model." }), { status: 500 });
+    return NextResponse.json({ error: "Failed to get a solution from the AI model." }, { status: 500 });
   }
 }
