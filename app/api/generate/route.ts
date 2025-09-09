@@ -52,7 +52,8 @@ export async function POST(request: NextRequest) {
   `;
 
   try {
-    const genAI = new GoogleGenAI(apiKey);
+    // THIS IS THE CORRECTED LINE:
+    const genAI = new GoogleGenAI({ apiKey });
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const result = await model.generateContent({
